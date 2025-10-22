@@ -1,4 +1,4 @@
-package com.certimeter.easycv.curriculum_api;
+package com.certimetergroup.easycv.curriculumapi;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
