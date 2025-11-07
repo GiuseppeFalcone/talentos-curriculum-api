@@ -21,5 +21,9 @@ public interface EducationMapper {
 
     Set<Education> fromDtoSet(Set<EducationDto> educationDtoSet);
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "curriculum", ignore = true)
+    Education createEntity(CreateEducationDto createEducationDto);
+
     Set<Education> createEntitySet(Set<CreateEducationDto> educationDtoSet);
 }

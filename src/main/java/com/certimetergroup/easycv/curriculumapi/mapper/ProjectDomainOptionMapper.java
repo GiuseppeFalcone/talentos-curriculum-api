@@ -1,6 +1,7 @@
 package com.certimetergroup.easycv.curriculumapi.mapper;
 
 import com.certimetergroup.easycv.commons.response.dto.curriculum.ProjectDomainOptionDto;
+import com.certimetergroup.easycv.commons.response.dto.curriculum.create.CreateProjectDomainOptionDto;
 import com.certimetergroup.easycv.curriculumapi.model.ProjectDomainOption;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -19,5 +20,13 @@ public interface ProjectDomainOptionMapper {
     @Mapping(target = "curriculum", ignore = true)
     ProjectDomainOption fromDto(ProjectDomainOptionDto dto);
 
-    Set<ProjectDomainOption> fromDtoSet(Set<ProjectDomainOptionDto> dtoList);
+    Set<ProjectDomainOption> fromDtoSet(Set<ProjectDomainOptionDto> dtoSet);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "project", ignore = true)
+    @Mapping(target = "userId", ignore = true)
+    @Mapping(target = "curriculum", ignore = true)
+    ProjectDomainOption fromCreateDto(CreateProjectDomainOptionDto dto);
+
+    Set<ProjectDomainOption> fromCreateDtoSet(Set<CreateProjectDomainOptionDto> dtoSet);
 }

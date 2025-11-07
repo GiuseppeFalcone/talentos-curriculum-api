@@ -9,9 +9,11 @@ import com.certimetergroup.easycv.curriculumapi.context.RequestContext;
 import com.certimetergroup.easycv.curriculumapi.mapper.CurriculumMapper;
 import com.certimetergroup.easycv.curriculumapi.model.Curriculum;
 import com.certimetergroup.easycv.curriculumapi.repository.CurriculumRepository;
+import com.certimetergroup.easycv.curriculumapi.repository.specification.CurriculumSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.web.PagedModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,15 +28,31 @@ public class CurriculumService {
     private final RequestContext requestContext;
     private final CurriculumMapper curriculumMapper;
 
-    public PagedModel<CurriculumLightDto> getCurriculums(Integer page, Integer pageSize, Set<Long> userIds) {
+    public PagedModel<CurriculumLightDto> getCurriculums(Integer page, Integer pageSize, Set<Long> userIds,
+                                                         Long domainId, Long domainOptionId) {
         Pageable paging = PageRequest.of(page - 1, pageSize);
+
+        Specification<Curriculum> spec = Specification.unrestricted();
+
         if (userIds != null && !userIds.isEmpty())
-            return new PagedModel<>(curriculumRepository.findAllByUserIds(paging, userIds).map(curriculumMapper::toLightDto));
-        return new PagedModel<>(curriculumRepository.findAll(paging).map(curriculumMapper::toLightDto));
+            spec = spec.and(CurriculumSpecification.hasUserIds(userIds));
+
+        if (domainId != null)
+            spec = spec.and(CurriculumSpecification.hasDomainId(domainId));
+
+        if (domainOptionId != null)
+            spec = spec.and(CurriculumSpecification.hasDomainOptionId(domainOptionId));
+
+        return new PagedModel<>(curriculumRepository.findAll(spec, paging).map(curriculumMapper::toLightDto));
+
     }
 
     public Optional<CurriculumDto> getCurriculum(Long curriculumId) {
         return curriculumRepository.findById(curriculumId).map(curriculumMapper::toDto);
+    }
+
+    public Optional<Long> getCurriculumIdByUserId(Long userId) {
+        return curriculumRepository.findIdByUserId(userId);
     }
 
     @Transactional
@@ -51,6 +69,7 @@ public class CurriculumService {
         curriculum.getProjects().forEach(project -> {
             project.setCurriculum(curriculum);
             project.getDomainOptions().forEach(domainOption -> {
+                domainOption.setUserId(requestContext.getUserId());
                 domainOption.setProject(project);
                 domainOption.setCurriculum(curriculum);
             });

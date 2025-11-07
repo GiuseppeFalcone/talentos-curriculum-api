@@ -1,6 +1,7 @@
 package com.certimetergroup.easycv.curriculumapi.mapper;
 
 import com.certimetergroup.easycv.commons.response.dto.curriculum.ProjectDto;
+import com.certimetergroup.easycv.commons.response.dto.curriculum.create.CreateProjectDto;
 import com.certimetergroup.easycv.curriculumapi.model.Project;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -19,4 +20,8 @@ public interface ProjectMapper {
     Project fromDto(ProjectDto dto);
 
     Set<Project> fromDtoSet(Set<ProjectDto> dtoList);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "curriculum", ignore = true)
+    Project fromCreateDto(CreateProjectDto dto);
 }

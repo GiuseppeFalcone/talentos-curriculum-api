@@ -24,11 +24,11 @@ public interface CurriculumMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "userId", source = "userId")
-    @Mapping(target = "lastModifiedAt", expression = "java(LocalDateTime.now())")
+    @Mapping(target = "lastModifiedAt", expression = "java(java.time.LocalDateTime.now())")
     Curriculum createCurriculum(CreateCurriculumDto createCurriculumDto, Long userId);
 
     @Mapping(target = "id", source = "curriculumId")
     @Mapping(target = "userId", ignore = true)
-    @Mapping(target = "lastModifiedAt", expression = "java(LocalDateTime.now())")
+    @Mapping(target = "lastModifiedAt", expression = "java(java.time.LocalDateTime.now())")
     void updateCurriculumFromDto(CurriculumDto curriculumDto, @MappingTarget Curriculum curriculum);
 }
