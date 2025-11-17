@@ -36,8 +36,7 @@ public class CurriculumController {
             @RequestParam(required = false) Set<Long> userIds,
             @RequestParam(required = false) Long domainId,
             @RequestParam(required = false) Long domainOptionId) {
-
-        authorizationService.checkGetCurriculums();
+        authorizationService.checkGetCurriculums(userIds);
         return ResponseEntity.ok().body(new Response<>(ResponseEnum.SUCCESS, curriculumService.getCurriculums(page, pageSize, userIds, domainId, domainOptionId)));
     }
 

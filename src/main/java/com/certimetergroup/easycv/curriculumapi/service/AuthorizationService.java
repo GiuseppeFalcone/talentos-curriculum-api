@@ -7,14 +7,16 @@ import com.certimetergroup.easycv.curriculumapi.context.RequestContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Set;
+
 @Service
 @RequiredArgsConstructor
 public class AuthorizationService {
-    private final CurriculumService curriculumService;
     private final RequestContext requestContext;
 
-    public void checkGetCurriculums() {
-        if (requestContext.getUserRole().equals(UserRoleEnum.EMPLOYEE))
+    public void checkGetCurriculums(Set<Long> userIds) {
+        if (requestContext.getUserRole().equals(UserRoleEnum.EMPLOYEE) &&
+                userIds != null && userIds.size() > 1  && !userIds.contains(requestContext.getUserId()))
             throw new FailureException(ResponseEnum.UNAUTHORIZED);
     }
 
