@@ -44,7 +44,6 @@ public class CurriculumService {
             spec = spec.and(CurriculumSpecification.hasDomainOptionId(domainOptionId));
 
         return new PagedModel<>(curriculumRepository.findAll(spec, paging).map(curriculumMapper::toLightDto));
-
     }
 
     public Optional<CurriculumDto> getCurriculum(Long curriculumId) {
