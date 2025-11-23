@@ -6,7 +6,6 @@ import com.certimetergroup.easycv.commons.response.Response;
 import com.certimetergroup.easycv.commons.response.dto.curriculum.CurriculumDto;
 import com.certimetergroup.easycv.commons.response.dto.curriculum.CurriculumLightDto;
 import com.certimetergroup.easycv.commons.response.dto.curriculum.create.CreateCurriculumDto;
-import com.certimetergroup.easycv.curriculumapi.service.AuthorizationService;
 import com.certimetergroup.easycv.curriculumapi.service.CurriculumService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
@@ -26,8 +25,8 @@ import java.util.Set;
 @Validated
 @RequiredArgsConstructor
 public class CurriculumController {
+
     private final CurriculumService curriculumService;
-    private final AuthorizationService authorizationService;
 
     @GetMapping
     public ResponseEntity<Response<PagedModel<CurriculumLightDto>>> getCurriculums(
@@ -36,7 +35,7 @@ public class CurriculumController {
             @RequestParam(required = false) Set<Long> userIds,
             @RequestParam(required = false) Long domainId,
             @RequestParam(required = false) Long domainOptionId) {
-        authorizationService.checkGetCurriculums(userIds);
+
         return ResponseEntity.ok().body(new Response<>(ResponseEnum.SUCCESS, curriculumService.getCurriculums(page, pageSize, userIds, domainId, domainOptionId)));
     }
 
@@ -61,7 +60,7 @@ public class CurriculumController {
     public ResponseEntity<Response<CurriculumDto>> replaceCurriculumData(
             @PathVariable @NotNull(message = "Curriculum Id required") @Positive(message = "Wrong curriculum id provided") Long curriculumId,
             @RequestBody @NotNull(message = "CurriculumDto required") CurriculumDto curriculumDto) {
-        authorizationService.checkPutPatch(curriculumDto.getUserId(), curriculumId);
+
         Optional<CurriculumDto> optionalCurriculumDto = curriculumService.replaceCurriculumData(curriculumId, curriculumDto);
         return optionalCurriculumDto.map(
                         dto -> ResponseEntity.ok().body(new Response<>(ResponseEnum.SUCCESS, dto)))
@@ -71,7 +70,7 @@ public class CurriculumController {
     @DeleteMapping("/{curriculumId}")
     public ResponseEntity<Response<Void>> deleteCurriculum(
             @PathVariable @NotNull(message = "Curriculum Id required") @Positive(message = "Wrong curriculum id provided") Long curriculumId) {
-        authorizationService.checkDelete(curriculumId);
+
         curriculumService.deleteCurriculum(curriculumId);
         return ResponseEntity.ok().body(new Response<>(ResponseEnum.SUCCESS));
     }
