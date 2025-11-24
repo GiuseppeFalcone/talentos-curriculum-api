@@ -28,8 +28,7 @@ public class CurriculumService {
     private final RequestContext requestContext;
     private final CurriculumMapper curriculumMapper;
 
-    public PagedModel<CurriculumLightDto> getCurriculums(Integer page, Integer pageSize, Set<Long> userIds,
-                                                         Long domainId, Long domainOptionId) {
+    public PagedModel<CurriculumLightDto> getCurriculums(Integer page, Integer pageSize, Set<Long> userIds, Set<Long> domainOptionIds) {
         Pageable paging = PageRequest.of(page - 1, pageSize);
 
         Specification<Curriculum> spec = Specification.unrestricted();
@@ -37,11 +36,9 @@ public class CurriculumService {
         if (userIds != null && !userIds.isEmpty())
             spec = spec.and(CurriculumSpecification.hasUserIds(userIds));
 
-        if (domainId != null)
-            spec = spec.and(CurriculumSpecification.hasDomainId(domainId));
 
-        if (domainOptionId != null)
-            spec = spec.and(CurriculumSpecification.hasDomainOptionId(domainOptionId));
+        if (domainOptionIds != null && !domainOptionIds.isEmpty())
+            spec = spec.and(CurriculumSpecification.hasDomainOptionIds(domainOptionIds));
 
         return new PagedModel<>(curriculumRepository.findAll(spec, paging).map(curriculumMapper::toLightDto));
     }

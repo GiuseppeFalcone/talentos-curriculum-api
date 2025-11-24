@@ -33,10 +33,9 @@ public class CurriculumController {
             @RequestParam(defaultValue = "1") @Positive(message = "Page must be > 0") Integer page,
             @RequestParam(defaultValue = "5") @Positive(message = "Page size must be > 0") Integer pageSize,
             @RequestParam(required = false) Set<Long> userIds,
-            @RequestParam(required = false) Long domainId,
-            @RequestParam(required = false) Long domainOptionId) {
+            @RequestParam(required = false) Set<Long> domainOptionIds) {
 
-        return ResponseEntity.ok().body(new Response<>(ResponseEnum.SUCCESS, curriculumService.getCurriculums(page, pageSize, userIds, domainId, domainOptionId)));
+        return ResponseEntity.ok().body(new Response<>(ResponseEnum.SUCCESS, curriculumService.getCurriculums(page, pageSize, userIds, domainOptionIds)));
     }
 
     @GetMapping("/{curriculumId}")
