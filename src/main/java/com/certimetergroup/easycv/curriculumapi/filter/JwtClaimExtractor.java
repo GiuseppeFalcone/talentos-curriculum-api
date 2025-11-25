@@ -1,8 +1,5 @@
-package com.certimetergroup.easycv.curriculumapi.middleware;
+package com.certimetergroup.easycv.curriculumapi.filter;
 
-import com.certimetergroup.easycv.commons.enumeration.ResponseEnum;
-import com.certimetergroup.easycv.commons.enumeration.UserRoleEnum;
-import com.certimetergroup.easycv.commons.exception.FailureException;
 import com.certimetergroup.easycv.commons.utility.HttpHeaderUtil;
 import com.certimetergroup.easycv.curriculumapi.context.RequestContext;
 import com.certimetergroup.easycv.curriculumapi.service.CurriculumService;
@@ -14,18 +11,20 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
-import java.util.Optional;
 
 @Order(1)
 @Component
 @RequiredArgsConstructor
 public class JwtClaimExtractor extends OncePerRequestFilter {
+
     private final RequestContext requestContext;
     private final CurriculumService curriculumService;
+    private final HandlerExceptionResolver handlerExceptionResolver;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
@@ -43,15 +42,10 @@ public class JwtClaimExtractor extends OncePerRequestFilter {
             Map<String, Object> claimsMap = mapper.readValue(payload, Map.class);
 
             requestContext.setUserId(Long.parseLong((String) claimsMap.get("sub")));
-            requestContext.setUserRole(UserRoleEnum.valueOf((String) claimsMap.get("role")));
-            Optional<Long> curriculumId = curriculumService.getCurriculumIdByUserId(requestContext.getUserId());
-            if (curriculumId.isEmpty())
-                throw new FailureException(ResponseEnum.NOT_FOUND);
-            requestContext.setCurriculumId(curriculumId.get());
 
             filterChain.doFilter(request, response);
         } catch (Exception exception) {
-            throw new FailureException(ResponseEnum.JWT_MALFORMED, exception);
+            handlerExceptionResolver.resolveException(request, response, null, exception);
         }
     }
 }

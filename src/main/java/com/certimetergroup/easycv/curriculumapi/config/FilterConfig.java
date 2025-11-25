@@ -1,6 +1,6 @@
 package com.certimetergroup.easycv.curriculumapi.config;
 
-import com.certimetergroup.easycv.curriculumapi.middleware.JwtClaimExtractor;
+import com.certimetergroup.easycv.curriculumapi.filter.JwtClaimExtractor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;

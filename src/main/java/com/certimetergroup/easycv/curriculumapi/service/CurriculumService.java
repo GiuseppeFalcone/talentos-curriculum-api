@@ -36,7 +36,6 @@ public class CurriculumService {
         if (userIds != null && !userIds.isEmpty())
             spec = spec.and(CurriculumSpecification.hasUserIds(userIds));
 
-
         if (domainOptionIds != null && !domainOptionIds.isEmpty())
             spec = spec.and(CurriculumSpecification.hasDomainOptionIds(domainOptionIds));
 
@@ -45,10 +44,6 @@ public class CurriculumService {
 
     public Optional<CurriculumDto> getCurriculum(Long curriculumId) {
         return curriculumRepository.findById(curriculumId).map(curriculumMapper::toDto);
-    }
-
-    public Optional<Long> getCurriculumIdByUserId(Long userId) {
-        return curriculumRepository.findIdByUserId(userId);
     }
 
     @Transactional
