@@ -92,6 +92,13 @@ public class CurriculumService {
             });
         });
 
+        if (curriculum.getDomainOptions() != null) {
+            curriculum.getDomainOptions().forEach(option -> {
+                option.setCurriculum(curriculum);
+                option.setProject(null);
+            });
+        }
+
         Curriculum updatedCurriculum = curriculumRepository.save(curriculum);
         return Optional.of(curriculumMapper.toDto(updatedCurriculum));
     }
