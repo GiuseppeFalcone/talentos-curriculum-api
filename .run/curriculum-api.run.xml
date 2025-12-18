@@ -3,7 +3,7 @@
     <option name="envFilePaths">
       <option value="$PROJECT_DIR$/src/main/resources/.env" />
     </option>
-    <option name="MAIN_CLASS_NAME" value="com.certimetergroup.easycv.curriculumapi.CurriculumApiApplication" />
+    <option name="MAIN_CLASS_NAME" value="com.certimetergroup.talentos.curriculumapi.CurriculumApiApplication" />
     <module name="curriculumapi" />
     <method v="2">
       <option name="Make" enabled="true" />

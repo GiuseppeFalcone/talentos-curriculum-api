@@ -1,0 +1,256 @@
+{
+  "info": {
+    "_postman_id": "b6a7b3c0-1234-5678-90ab-cdef12345678",
+    "name": "Curriculum API Tests",
+    "description": "Collection to test the Curriculum API endpoints including Create, Read, Update, and Delete operations. Includes automatic ID capturing and response validation.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Create Curriculum",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "var jsonData = pm.response.json();",
+              "",
+              "pm.test(\"Response status is SUCCESS\", function () {",
+              "    pm.expect(jsonData.status).to.eql(\"SUCCESS\");",
+              "});",
+              "",
+              "pm.test(\"Payload contains ID\", function () {",
+              "    pm.expect(jsonData.payload).to.have.property('id');",
+              "    // Save the ID to a variable for use in other requests",
+              "    pm.collectionVariables.set(\"curriculumId\", jsonData.payload.id);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userId\": 101,\n  \"mobilePhone\": \"+39 123 456 7890\",\n  \"homeAddress\": \"123 Main St, Turin, Italy\",\n  \"workAddress\": \"456 Tech Park, Milan, Italy\",\n  \"maritalStatus\": false,\n  \"hasCar\": true,\n  \"openForTravel\": true,\n  \"summary\": \"Senior Java Developer with 5 years of experience.\",\n  \"drivingLicense\": \"B\",\n  \"educationHistory\": [\n    {\n      \"schoolNameId\": 10,\n      \"degreeNameId\": 5,\n      \"grade\": 105,\n      \"maxGrade\": 110,\n      \"startDate\": \"2015-09-01\",\n      \"endDate\": \"2018-07-20\"\n    }\n  ],\n  \"projects\": [\n    {\n      \"startDate\": \"2019-01-01\",\n      \"endDate\": \"2020-01-01\",\n      \"description\": \"E-commerce platform backend development.\"\n    }\n  ],\n  \"domainOptions\": []\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/curriculums",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "curriculums"
+          ]
+        },
+        "description": "Creates a new curriculum. Requires a `userId` and other profile details. The response ID is saved to the `curriculumId` variable."
+      },
+      "response": []
+    },
+    {
+      "name": "2. Get All Curriculums",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "var jsonData = pm.response.json();",
+              "",
+              "pm.test(\"Response contains PagedModel\", function () {",
+              "    pm.expect(jsonData.status).to.eql(\"SUCCESS\");",
+              "    // Assuming standard Spring PagedModel structure has 'content'",
+              "    pm.expect(jsonData.payload).to.have.property('content');",
+              "    pm.expect(jsonData.payload.content).to.be.an('array');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/curriculums?page=1&pageSize=5",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "curriculums"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "pageSize",
+              "value": "5"
+            },
+            {
+              "key": "userIds",
+              "value": "101",
+              "disabled": true
+            }
+          ]
+        },
+        "description": "Retrieves a paginated list of curriculums."
+      },
+      "response": []
+    },
+    {
+      "name": "3. Get Curriculum by ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "var jsonData = pm.response.json();",
+              "",
+              "pm.test(\"Returned ID matches requested ID\", function () {",
+              "    pm.expect(jsonData.payload.id).to.eql(pm.collectionVariables.get(\"curriculumId\"));",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/curriculums/{{curriculumId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "curriculums",
+            "{{curriculumId}}"
+          ]
+        },
+        "description": "Fetches the specific curriculum created in step 1."
+      },
+      "response": []
+    },
+    {
+      "name": "4. Update Curriculum",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "var jsonData = pm.response.json();",
+              "",
+              "pm.test(\"Summary is updated\", function () {",
+              "    pm.expect(jsonData.payload.summary).to.eql(\"UPDATED: Senior Java Developer\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": {{curriculumId}},\n  \"userId\": 101,\n  \"mobilePhone\": \"+39 123 456 7890\",\n  \"homeAddress\": \"123 Main St, Turin, Italy\",\n  \"workAddress\": \"456 Tech Park, Milan, Italy\",\n  \"maritalStatus\": true,\n  \"hasCar\": true,\n  \"openForTravel\": false,\n  \"summary\": \"UPDATED: Senior Java Developer\",\n  \"drivingLicense\": \"B\",\n  \"educationHistory\": [\n    {\n      \"schoolNameId\": 10,\n      \"degreeNameId\": 5,\n      \"grade\": 110,\n      \"maxGrade\": 110,\n      \"startDate\": \"2015-09-01\",\n      \"endDate\": \"2018-07-20\"\n    }\n  ],\n  \"projects\": [],\n  \"domainOptions\": []\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/curriculums/{{curriculumId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "curriculums",
+            "{{curriculumId}}"
+          ]
+        },
+        "description": "Updates the existing curriculum. In this example, we update the `summary` and `maritalStatus`."
+      },
+      "response": []
+    },
+    {
+      "name": "5. Delete Curriculum",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "var jsonData = pm.response.json();",
+              "pm.test(\"Status is SUCCESS\", function () {",
+              "    pm.expect(jsonData.status).to.eql(\"SUCCESS\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/curriculums/{{curriculumId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "curriculums",
+            "{{curriculumId}}"
+          ]
+        },
+        "description": "Deletes the curriculum created in step 1."
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8083",
+      "type": "string"
+    },
+    {
+      "key": "curriculumId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
