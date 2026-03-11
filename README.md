@@ -1,238 +1,361 @@
 # Curriculum API
 
-A RESTful API built with Spring Boot for managing curriculum vitae (CV) data. This API provides comprehensive endpoints for creating, reading, updating, and deleting curriculum information including education history, projects, and personal details.
+> A RESTful microservice for curriculum vitae and professional profile management in the TalentOS ecosystem
 
-## 📋 Table of Contents
+## Overview
 
-- [Features](#features)
-- [Technology Stack](#technology-stack)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Running the Application](#running-the-application)
-- [API Documentation](#api-documentation)
-- [Database Setup](#database-setup)
-- [Testing](#testing)
-- [Project Structure](#project-structure)
-- [License](#license)
+**Curriculum API** is a Spring Boot-based microservice that manages user curriculum data, including profile summary, education history, projects, and domain-option classifications.
 
-## ✨ Features
+It exposes a clean API to create, retrieve, replace, delete, and search curriculums with pagination and filtering support. The service integrates with other TalentOS services through shared DTOs and a standardized response envelope from the common TalentOS library.
 
-- **CRUD Operations**: Complete Create, Read, Update, and Delete operations for curriculum data
-- **Pagination Support**: Efficient pagination for listing curriculums
-- **Advanced Filtering**: Filter curriculums by user IDs and domain options
-- **Education History**: Manage educational background information
-- **Projects Management**: Track professional projects and experiences
-- **Validation**: Input validation using Jakarta Bean Validation
-- **API Documentation**: Interactive API documentation with Swagger/OpenAPI
-- **JWT Integration**: JWT claims extraction for secure authentication
-- **Multiple Environments**: Support for development, testing, and production profiles
+## Key Features
 
-## 🛠 Technology Stack
+- **Curriculum CRUD**: Create, retrieve, update, and delete curriculum records
+- **Nested Data Management**: Persist and update education history, projects, and project domain options
+- **Advanced Search & Filtering**: Filter curriculum listings by user IDs and domain option IDs with pagination
+- **User-Scoped Creation**: Enforce one curriculum per authenticated user context
+- **Transactional Replace Logic**: Full curriculum replacement with relation re-linking and orphan removal
+- **Data Mapping**: MapStruct-based entity/DTO mapping for clean contracts
+- **Input Validation**: Jakarta Bean Validation for path/query/body safety
+- **Global Error Handling**: Centralized exception mapping with standardized service responses
+- **JWT Claim Extraction**: Request filter extracts user identity from bearer token claims
+- **API Documentation**: Interactive Swagger UI and OpenAPI 3 documentation
+- **Multi-Environment Configuration**: Dedicated dev/test/prod profile properties
 
-- **Java**: 25
-- **Spring Boot**: 3.5.7
-- **Spring Data JPA**: For database operations
-- **MySQL**: Database
-- **Lombok**: Reduce boilerplate code
-- **MapStruct**: Object mapping
-- **SpringDoc OpenAPI**: API documentation (Swagger UI)
-- **Maven**: Build and dependency management
+## Technology Stack
 
-## 📦 Prerequisites
+| Component                 | Technology                  | Version |
+| ------------------------- | --------------------------- | ------- |
+| **Framework**             | Spring Boot                 | 3.5.7   |
+| **Language**              | Java                        | 25      |
+| **Database**              | MySQL                       | 8.0+    |
+| **ORM**                   | Spring Data JPA / Hibernate | 3.5.7   |
+| **Validation**            | Jakarta Bean Validation     | 3.5.7   |
+| **Mapping**               | MapStruct                   | 1.6.3   |
+| **Boilerplate Reduction** | Lombok                      | 1.18.42 |
+| **API Documentation**     | SpringDoc OpenAPI           | 2.8.13  |
+| **Build Tool**            | Maven                       | 4.0.0   |
 
-Before running this application, ensure you have the following installed:
+## Project Structure
 
-- Java 25 or higher
-- Maven 3.6+
-- MySQL 8.0+
-- Git (for cloning the repository)
+```text
+src/
+├── main/
+│   ├── java/com/certimetergroup/talentos/curriculumapi/
+│   │   ├── CurriculumApiApplication.java          # Spring Boot entry point
+│   │   ├── config/
+│   │   │   ├── FilterConfig.java                  # Servlet filter registration
+│   │   │   └── SwaggerConfig.java                 # OpenAPI/Swagger configuration
+│   │   ├── context/
+│   │   │   └── RequestContext.java                # Request-scoped user context
+│   │   ├── controller/
+│   │   │   ├── CurriculumController.java          # Curriculum endpoints
+│   │   │   └── ExceptionController.java           # Global exception handling
+│   │   ├── filter/
+│   │   │   └── JwtClaimExtractor.java             # Authorization token claim extraction
+│   │   ├── service/
+│   │   │   └── CurriculumService.java             # Curriculum business logic
+│   │   ├── repository/
+│   │   │   ├── CurriculumRepository.java          # Curriculum JPA repository
+│   │   │   └── specification/
+│   │   │       └── CurriculumSpecification.java   # Dynamic query specifications
+│   │   ├── mapper/
+│   │   │   ├── CurriculumMapper.java              # Curriculum entity <-> DTO mapping
+│   │   │   ├── EducationMapper.java               # Education mapping
+│   │   │   ├── ProjectMapper.java                 # Project mapping
+│   │   │   └── ProjectDomainOptionMapper.java     # Domain option mapping
+│   │   └── model/
+│   │       ├── Curriculum.java                    # Curriculum entity
+│   │       ├── Education.java                     # Education entity
+│   │       ├── Project.java                       # Project entity
+│   │       └── ProjectDomainOption.java           # Domain option relation entity
+│   └── resources/
+│       ├── application.properties                 # Shared/base properties
+│       ├── application-dev.properties             # Development profile
+│       ├── application-prod.properties            # Production profile
+│       └── application-test.properties            # Test profile
+└── test/
+   └── java/com/certimetergroup/talentos/curriculumapi/
+      └── CurriculumApiApplicationTests.java     # Spring context test
+```
 
-## 🚀 Installation
+## Getting Started
 
-1. Clone the repository:
+### Prerequisites
+
+- **Java 25** or higher
+- **Maven 3.6+** (or Maven Wrapper)
+- **MySQL 8.0+** (configured separately)
+- Access to the internal artifact repository for `com.certimetergroup.talentos:commons`
+
+### Installation
+
+1. **Clone the repository**
+
 ```bash
-git clone https://github.com/GiuseppeFalcone/talentos-curriculum-api.git
-cd talentos-curriculum-api
+git clone <repository-url>
+cd curriculum-api
 ```
 
-2. Build the project:
+2. **Set up environment variables**
+
 ```bash
-./mvnw clean install
+export SPRING_PROFILES_ACTIVE=dev
+export PORT=8083
+export SQL_DB_URL_DEV="jdbc:mysql://localhost:3306/easy_cv_dev"
+export SQL_DB_USER="root"
+export SQL_DB_PSW="password"
 ```
 
-## ⚙️ Configuration
+3. **Build the project**
 
-The application supports multiple profiles (dev, test, prod). Configuration is managed through environment variables.
-
-### Required Environment Variables
-
-- `SPRING_PROFILES_ACTIVE`: Profile to activate (dev, test, or prod)
-- `PORT`: Port number for the application server
-- `SQL_DB_URL_DEV`: Database URL for development
-- `SQL_DB_USER`: Database username
-- `SQL_DB_PSW`: Database password
-
-### Development Profile Example
-
-Create a `.env` file in the project root (not committed to version control):
-
-```properties
-SPRING_PROFILES_ACTIVE=dev
-PORT=8080
-SQL_DB_URL_DEV=jdbc:mysql://localhost:3306/curriculum_db
-SQL_DB_USER=your_username
-SQL_DB_PSW=your_password
+```bash
+./mvnw clean package
 ```
 
-### Application Properties
-
-The application is configured with:
-- JPA/Hibernate with MySQL dialect
-- API documentation at `/curriculum-api/docs`
-- Swagger UI at `/curriculum-api/swagger-ui.html`
-- Request/response logging enabled
-
-## 🏃 Running the Application
-
-### Using Maven
+4. **Run the application**
 
 ```bash
 ./mvnw spring-boot:run
 ```
 
-### Using Java
+Or run the built JAR:
 
 ```bash
 java -jar target/curriculumapi-0.0.1-SNAPSHOT.jar
 ```
 
-The application will start on the configured port (default: 8080).
+The service starts on the configured `PORT` (for example, `8083`).
 
-## 📖 API Documentation
+## API Usage
 
-Once the application is running, access the interactive API documentation:
+### Base URL
 
-- **Swagger UI**: http://localhost:8080/curriculum-api/swagger-ui.html
-- **OpenAPI Docs**: http://localhost:8080/curriculum-api/docs
-
-### Main Endpoints
-
-#### Get All Curriculums
+```text
+http://localhost:8083/api/curriculums
 ```
-GET /api/curriculums?page=1&pageSize=5
-```
-Optional query parameters:
-- `page`: Page number (default: 1, must be > 0)
-- `pageSize`: Items per page (default: 5, must be > 0)
-- `userIds`: Filter by user IDs (comma-separated)
-- `domainOptionIds`: Filter by domain option IDs (comma-separated)
 
-#### Get Curriculum by ID
+### Response Contract
+
+All endpoints return a standardized envelope:
+
+- `responseEnum`: service outcome/status code semantic
+- `payload`: endpoint-specific data (or null)
+
+### Authentication Context
+
+Requests under `/api/*` pass through a filter that reads the bearer token from `Authorization`, decodes JWT payload claims, and stores `sub` as the request user ID.
+
+This user context is used during curriculum creation to enforce one curriculum per user.
+
+### Example Endpoints
+
+**Get All Curriculums (with pagination and filtering)**
+
+```http
+GET /api/curriculums?page=1&pageSize=5&userIds=101,102&domainOptionIds=18,19
 ```
+
+**Get Curriculum by ID**
+
+```http
 GET /api/curriculums/{curriculumId}
 ```
 
-#### Create Curriculum
-```
+**Create Curriculum**
+
+```http
 POST /api/curriculums
-Content-Type: application/json
-
-{
-  "userId": 101,
-  "mobilePhone": "+39 123 456 7890",
-  "homeAddress": "123 Main St, City, Country",
-  "workAddress": "456 Office St, City, Country",
-  "maritalStatus": false,
-  "hasCar": true,
-  "openForTravel": true,
-  "summary": "Professional summary...",
-  "drivingLicense": "B",
-  "educationHistory": [...],
-  "projects": [...],
-  "domainOptions": [...]
-}
 ```
 
-#### Update Curriculum
-```
+**Replace Curriculum Data**
+
+```http
 PUT /api/curriculums/{curriculumId}
-Content-Type: application/json
 ```
 
-#### Delete Curriculum
-```
+**Delete Curriculum**
+
+```http
 DELETE /api/curriculums/{curriculumId}
 ```
 
-### Postman Collection
+### API Documentation
 
-A Postman collection is included in the repository (`curriculum-api-postman-collection.json`) with pre-configured requests and tests for all API endpoints.
+Interactive API documentation is available at:
 
-## 🗄️ Database Setup
+- **Swagger UI**: `http://localhost:8083/curriculum-api/swagger-ui.html`
+- **OpenAPI JSON**: `http://localhost:8083/curriculum-api/docs`
 
-### Using the Provided SQL Dump
+## Configuration
 
-A database schema dump is provided in `dump-easy-cv-dev-curriculumapi-202512181249.sql`.
+### Environment Profiles
 
-1. Create the database:
-```bash
-mysql -u root -p -e "CREATE DATABASE curriculum_db;"
+**Development** (`application-dev.properties`):
+
+- Development database URL via `SQL_DB_URL_DEV`
+- Local SQL logging enabled (`spring.jpa.show-sql=true`)
+- Development schema strategy set to `update`
+
+**Production** (`application-prod.properties`):
+
+- Production database URL via `SQL_DB_URL_PROD`
+- Environment-based credentials and settings
+
+**Test** (`application-test.properties`):
+
+- Test database URL via `SQL_DB_URL_TEST`
+- Test schema strategy set to `update`
+
+### Key Configuration Properties
+
+```properties
+# Application
+spring.application.name=curriculum-api
+server.port=${PORT}
+spring.profiles.active=${SPRING_PROFILES_ACTIVE}
+
+# Database
+spring.jpa.hibernate.ddl-auto=validate
+spring.jpa.database-platform=org.hibernate.dialect.MySQLDialect
+
+# Externalized datasource properties (profile-specific files)
+# application-dev.properties  -> ${SQL_DB_URL_DEV}
+# application-test.properties -> ${SQL_DB_URL_TEST}
+# application-prod.properties -> ${SQL_DB_URL_PROD}
+spring.datasource.username=${SQL_DB_USER}
+spring.datasource.password=${SQL_DB_PSW}
+
+# Swagger/API Documentation
+springdoc.api-docs.path=/curriculum-api/docs
+springdoc.swagger-ui.path=/curriculum-api/swagger-ui.html
 ```
 
-2. Import the schema:
-```bash
-mysql -u root -p curriculum_db < dump-easy-cv-dev-curriculumapi-202512181249.sql
-```
+## Data Model
 
-### Database Schema
+### Curriculum Entity
 
-The main tables include:
-- `curriculum`: Core curriculum information
-- `education`: Education history entries
-- `project`: Professional projects
-- `project_domain_option`: Project domain classifications
+- **id**: Auto-generated primary key
+- **userId**: Owner user identifier
+- **summary**: Profile summary text
+- **educationHistory**: Set of associated `Education` records
+- **projects**: Set of associated `Project` records
+- **domainOptions**: Set of curriculum-level `ProjectDomainOption` records
 
-## 🧪 Testing
+### Education Entity
 
-Run the test suite:
+- **id**: Auto-generated primary key
+- **schoolNameId**: Reference ID for school/domain value
+- **degreeNameId**: Reference ID for degree/domain value
+- **grade / maxGrade**: Academic scoring values
+- **startDate / endDate**: Education timeline
+
+### Project Entity
+
+- **id**: Auto-generated primary key
+- **startDate / endDate**: Project timeline
+- **description**: Required project description (TEXT)
+- **domainOptions**: Set of associated `ProjectDomainOption` records
+
+### ProjectDomainOption Entity
+
+- **id**: Auto-generated primary key
+- **domainId**: Parent domain reference
+- **domainOptionId**: Selected domain-option reference
+- **grade**: Skill level score (0..5)
+- **project / curriculum**: Relation ownership fields
+
+## Error Handling
+
+Global exception handling is provided via `ExceptionController` (`@RestControllerAdvice`).
+
+Handled categories include:
+
+- Validation errors (`ConstraintViolationException`, `MethodArgumentNotValidException`, `BindException`)
+- Business exceptions (`FailureException`)
+- Database/JDBC errors (`JDBCException`, `JDBCConnectionException`)
+- Generic fallback (`Exception`)
+
+Validation failures return `BAD_REQUEST` with a payload map of `field/path -> message`.
+
+## Testing
+
+Run unit/integration tests:
 
 ```bash
 ./mvnw test
 ```
 
-The project uses Spring Boot Test for integration testing.
+The repository includes a Postman collection:
 
-## 📁 Project Structure
+- `curriculum-api-postman-collection.json`
 
+It provides:
+
+- endpoint requests
+- JSON schema validations
+- workflow scenario (create -> update -> delete)
+
+## Project Statistics
+
+- **Language**: Java 25
+- **Framework**: Spring Boot 3.5.7
+- **Build System**: Maven
+- **Database**: MySQL with Hibernate/JPA
+- **API Documentation**: OpenAPI 3.0 / Swagger UI
+
+## Dependencies Management
+
+Dependencies are managed via Maven in `pom.xml`.
+
+Core dependencies include:
+
+- Spring Boot starters: Web, Data JPA, Validation, Test
+- MySQL Connector/J
+- MapStruct + annotation processor
+- Lombok + Lombok-MapStruct binding
+- SpringDoc OpenAPI
+- Shared TalentOS commons module
+
+Check for dependency updates with:
+
+```bash
+./mvnw dependency:resolve
+./mvnw versions:display-dependency-updates
 ```
-src/
-├── main/
-│   ├── java/
-│   │   └── com/certimetergroup/talentos/curriculumapi/
-│   │       ├── config/          # Configuration classes
-│   │       ├── controller/      # REST controllers
-│   │       ├── context/         # Request context management
-│   │       ├── filter/          # JWT and request filters
-│   │       ├── mapper/          # MapStruct mappers
-│   │       ├── model/           # JPA entities
-│   │       └── service/         # Business logic
-│   └── resources/
-│       ├── application.properties         # Main configuration
-│       ├── application-dev.properties     # Development profile
-│       ├── application-test.properties    # Test profile
-│       └── application-prod.properties    # Production profile
-└── test/                        # Test classes
-```
 
-## 📄 License
+## Development Guidelines
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+### Code Structure
 
-## 👤 Author
+- **Controllers**: Handle HTTP requests and standardized response contracts
+- **Services**: Implement business rules and transactional orchestration
+- **Repositories**: Perform persistence operations and specification-based filtering
+- **Mappers**: Convert entities and shared DTOs through MapStruct
+- **Models**: Keep persistence concerns isolated from API payload contracts
+- **Filters/Context**: Extract and propagate request-scoped user identity
 
-**Giuseppe Falcone**
+### Best Practices
+
+- Keep business logic in services, not controllers
+- Validate request parameters and payloads at the boundary
+- Use specifications for searchable, composable query filters
+- Preserve DTO-based contracts to avoid exposing entity internals
+- Maintain profile-based environment isolation for deployment safety
+
+## Contributing
+
+When contributing to this project:
+
+1. Follow the existing package structure and naming conventions
+2. Add validation and error handling for new request paths
+3. Keep mapper and relation-sync logic deterministic and testable
+4. Update this README when introducing new endpoints or config changes
+
+## License
+
+MIT License. See [LICENSE](LICENSE) for details.
 
 ---
 
-For more information or questions, please open an issue in the repository.
+**Developed by Giuseppe Falcone**
